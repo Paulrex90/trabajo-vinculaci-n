@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mecanismos de Reparación Integral a las Víctimas - Ecuador</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Harmony -->
+    <!-- Application Structure Plan: Se ha diseñado una aplicación de una sola página con una estructura narrativa y temática que guía al usuario desde los conceptos más básicos hasta los más específicos. La estructura es: 1) Introducción empática ('Un Camino Hacia la Justicia'), 2) Principios fundamentales en tarjetas interactivas ('Pilares de la Reparación'), 3) Exploración de las 5 medidas a través de un sistema de pestañas sincronizado con un gráfico de dona interactivo ('Las 5 Dimensiones de la Reparación'), 4) Marco legal en un formato de acordeón ('El Respaldo de la Ley'), y 5) Recursos adicionales. Esta estructura fue elegida para transformar el contenido de una capacitación lineal en una experiencia de aprendizaje autodirigida y no intimidante, facilitando la comprensión y la retención del material, que es denso por naturaleza. La interactividad fomenta la exploración activa en lugar del consumo pasivo. -->
+    <!-- Visualization & Content Choices: 1. Definición de Víctima -> Goal: Informar/Empatizar -> Method: Tarjetas con iconos y texto claro (HTML/CSS) -> Interaction: Hover suave. Justification: Establece un tono respetuoso. 2. Principios de Reparación -> Goal: Organizar/Informar -> Method: Rejilla de tarjetas expandibles (HTML/CSS/JS) -> Interaction: Clic para revelar detalles. Justification: Descompone conceptos complejos en partes manejables. 3. Las 5 Medidas de Reparación -> Goal: Organizar/Comparar -> Method: Pestañas sincronizadas con un gráfico de dona (Chart.js/Canvas) -> Interaction: Clic en pestaña o segmento del gráfico actualiza la vista. Justification: Proporciona un ancla visual potente y una forma interactiva de explorar el núcleo del contenido. 4. Marco Legal -> Goal: Informar/Organizar -> Method: Acordeón (HTML/CSS/JS) -> Interaction: Clic para expandir. Justification: Evita abrumar con texto legal, permitiendo exploración progresiva. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F9FAFB; /* gray-50 */
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #3B82F6; /* blue-500 */
+            border-bottom-color: #3B82F6;
+        }
+        .tab-button.active {
+            background-color: #3B82F6; /* blue-500 */
+            color: #FFFFFF;
+        }
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+        .accordion-button.open .accordion-arrow {
+            transform: rotate(180deg);
+        }
+        .accordion-arrow {
+            transition: transform 0.3s;
+        }
+        .chart-container {
+            position: relative; 
+            width: 100%; 
+            max-width: 450px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <span class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">UN</span>
+                <a href="#" class="text-lg font-bold text-gray-700">Reparación Integral</a>
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#inicio" class="nav-link">Inicio</a>
+                <a href="#principios" class="nav-link">Principios</a>
+                <a href="#medidas" class="nav-link">Medidas</a>
+                <a href="#leyes" class="nav-link">Marco Legal</a>
+                <a href="#recursos" class="nav-link">Recursos</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4">
+            <a href="#inicio" class="block py-2 text-gray-700 hover:text-blue-500">Inicio</a>
+            <a href="#principios" class="block py-2 text-gray-700 hover:text-blue-500">Principios</a>
+            <a href="#medidas" class="block py-2 text-gray-700 hover:text-blue-500">Medidas</a>
+            <a href="#leyes" class="block py-2 text-gray-700 hover:text-blue-500">Marco Legal</a>
+            <a href="#recursos" class="block py-2 text-gray-700 hover:text-blue-500">Recursos</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8 md:py-12">
+
+        <!-- Section 1: Introduction -->
+        <section id="inicio" class="text-center scroll-mt-20">
+            <span class="text-blue-500 font-semibold">UNEMI POSGRADOS - ESCUELA DE DERECHO</span>
+            <h1 class="text-3xl md:text-5xl font-bold mt-2 mb-4">Un Camino Hacia la Justicia y la Dignidad</h1>
+            <p class="max-w-3xl mx-auto text-lg text-gray-600 mb-12">
+                Esta es una guía interactiva para comprender los mecanismos de reparación integral a las víctimas en Ecuador. El objetivo es sensibilizar y dotar de conocimiento básico sobre un derecho fundamental que busca sanar, restaurar y construir una sociedad más justa para todos.
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-8 text-left">
+                <div class="bg-white p-6 rounded-lg shadow-sm hover:shadow-lg transition-shadow">
+                    <h3 class="text-xl font-bold mb-2">¿Quién es una Víctima?</h3>
+                    <p class="text-gray-600">Es toda persona que ha sufrido un daño (físico, mental, emocional o económico) como consecuencia de una acción u omisión que viola la ley penal o los derechos humanos. No se trata de una etiqueta, sino del reconocimiento de una vulneración a su dignidad y derechos.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm hover:shadow-lg transition-shadow">
+                    <h3 class="text-xl font-bold mb-2">¿Por qué es Crucial la Reparación?</h3>
+                    <p class="text-gray-600">Porque va más allá de un castigo. Busca reconocer el sufrimiento de la víctima, devolverle, en lo posible, su proyecto de vida, y enviar un mensaje a la sociedad de que tales actos son inaceptables. Es un pilar para la reconciliación y la no repetición.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Principles -->
+        <section id="principios" class="py-16 md:py-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold">Pilares de la Reparación</h2>
+                <p class="max-w-2xl mx-auto text-lg text-gray-600 mt-4">La reparación integral no es un acto aislado, se sostiene sobre principios fundamentales que garantizan su efectividad y respeto por la dignidad humana. Haz clic en cada tarjeta para conocerlos.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="principle-card bg-white p-6 rounded-lg shadow-sm text-center cursor-pointer transition-transform transform hover:scale-105">
+                    <div class="text-4xl mb-3">⚖️</div>
+                    <h3 class="text-lg font-bold">Proporcionalidad</h3>
+                    <p class="text-sm text-gray-500 mt-2">La reparación debe ser adecuada a la gravedad del daño sufrido.</p>
+                </div>
+                 <div class="principle-card bg-white p-6 rounded-lg shadow-sm text-center cursor-pointer transition-transform transform hover:scale-105">
+                    <div class="text-4xl mb-3">🧩</div>
+                    <h3 class="text-lg font-bold">Integralidad</h3>
+                    <p class="text-sm text-gray-500 mt-2">Debe cubrir todos los aspectos del daño: material, moral y social.</p>
+                </div>
+                <div class="principle-card bg-white p-6 rounded-lg shadow-sm text-center cursor-pointer transition-transform transform hover:scale-105">
+                    <div class="text-4xl mb-3">🤝</div>
+                    <h3 class="text-lg font-bold">Dignidad</h3>
+                    <p class="text-sm text-gray-500 mt-2">Todo el proceso debe tratar a la víctima con respeto y empatía.</p>
+                </div>
+                <div class="principle-card bg-white p-6 rounded-lg shadow-sm text-center cursor-pointer transition-transform transform hover:scale-105">
+                    <div class="text-4xl mb-3">🎨</div>
+                    <h3 class="text-lg font-bold">Enfoque Diferenciado</h3>
+                    <p class="text-sm text-gray-500 mt-2">Considera las necesidades específicas de cada víctima (edad, género, etc.).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Measures -->
+        <section id="medidas" class="py-16 md:py-24 bg-white rounded-lg scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold">Las 5 Dimensiones de la Reparación</h2>
+                <p class="max-w-3xl mx-auto text-lg text-gray-600 mt-4">La reparación integral es un concepto multifacético que se compone de distintas medidas complementarias. Explora cada una de ellas usando las pestañas o haciendo clic en el gráfico interactivo.</p>
+            </div>
+            <div class="flex flex-col lg:flex-row gap-8 items-center">
+                <!-- Chart -->
+                <div class="w-full lg:w-1/3">
+                    <div class="chart-container">
+                        <canvas id="reparacionChart"></canvas>
+                    </div>
+                </div>
+                <!-- Tabs -->
+                <div class="w-full lg:w-2/3">
+                    <div class="mb-4 flex flex-wrap justify-center border-b border-gray-200">
+                        <button class="tab-button text-sm md:text-base py-2 px-4 font-medium text-gray-500 hover:bg-gray-100 rounded-t-lg active" data-tab="1">Restitución</button>
+                        <button class="tab-button text-sm md:text-base py-2 px-4 font-medium text-gray-500 hover:bg-gray-100 rounded-t-lg" data-tab="2">Indemnización</button>
+                        <button class="tab-button text-sm md:text-base py-2 px-4 font-medium text-gray-500 hover:bg-gray-100 rounded-t-lg" data-tab="3">Rehabilitación</button>
+                        <button class="tab-button text-sm md:text-base py-2 px-4 font-medium text-gray-500 hover:bg-gray-100 rounded-t-lg" data-tab="4">Satisfacción</button>
+                        <button class="tab-button text-sm md:text-base py-2 px-4 font-medium text-gray-500 hover:bg-gray-100 rounded-t-lg" data-tab="5">Garantías de No Repetición</button>
+                    </div>
+                    <div class="p-4">
+                        <div class="tab-content" id="tab-1">
+                            <h3 class="text-2xl font-bold mb-3">1. Restitución</h3>
+                            <p class="text-gray-600">Consiste en devolver a la víctima a la situación anterior a la violación de sus derechos. Siempre que sea posible, es la medida prioritaria. Implica restablecer la libertad, los derechos jurídicos, la identidad, la vida familiar, la ciudadanía, el empleo y la propiedad.</p>
+                            <p class="mt-2 text-sm text-blue-600"><b>Ejemplo:</b> La devolución de una propiedad que fue despojada ilegalmente.</p>
+                        </div>
+                        <div class="tab-content hidden" id="tab-2">
+                            <h3 class="text-2xl font-bold mb-3">2. Indemnización</h3>
+                            <p class="text-gray-600">Es una compensación económica por los daños materiales e inmateriales que se puedan valorar económicamente. Cubre el daño físico o mental, la pérdida de oportunidades (educación, empleo), el daño material, los gastos médicos y el daño moral.</p>
+                            <p class="mt-2 text-sm text-blue-600"><b>Ejemplo:</b> Un pago por los ingresos que una persona dejó de percibir debido a una lesión.</p>
+                        </div>
+                        <div class="tab-content hidden" id="tab-3">
+                            <h3 class="text-2xl font-bold mb-3">3. Rehabilitación</h3>
+                            <p class="text-gray-600">Busca la recuperación física y psicológica de la víctima. Incluye atención médica y psicológica, así como servicios jurídicos y sociales. El objetivo es ayudar a la persona a sobrellevar el trauma y reconstruir su proyecto de vida.</p>
+                            <p class="mt-2 text-sm text-blue-600"><b>Ejemplo:</b> Terapias psicológicas gratuitas para una víctima de violencia.</p>
+                        </div>
+                        <div class="tab-content hidden" id="tab-4">
+                            <h3 class="text-2xl font-bold mb-3">4. Medidas de Satisfacción</h3>
+                            <p class="text-gray-600">Son acciones simbólicas que buscan reconocer la dignidad de las víctimas y aliviar su sufrimiento moral. Incluyen la verificación de los hechos, la disculpa pública, los actos conmemorativos, los monumentos y la búsqueda de personas desaparecidas.</p>
+                            <p class="mt-2 text-sm text-blue-600"><b>Ejemplo:</b> Un acto público donde el Estado pide perdón por una masacre.</p>
+                        </div>
+                        <div class="tab-content hidden" id="tab-5">
+                            <h3 class="text-2xl font-bold mb-3">5. Garantías de No Repetición</h3>
+                            <p class="text-gray-600">Son medidas orientadas a evitar que las violaciones de derechos humanos vuelvan a ocurrir. Pueden incluir reformas legales e institucionales, la formación en derechos humanos para funcionarios públicos, y el fortalecimiento del sistema de justicia.</p>
+                            <p class="mt-2 text-sm text-blue-600"><b>Ejemplo:</b> La creación de una ley más estricta contra la tortura.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Legal Framework -->
+        <section id="leyes" class="py-16 md:py-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold">El Respaldo de la Ley</h2>
+                <p class="max-w-2xl mx-auto text-lg text-gray-600 mt-4">El derecho a la reparación integral no es una aspiración, está firmemente anclado en nuestro marco legal. Explora los instrumentos jurídicos más importantes que lo sustentan.</p>
+            </div>
+            <div class="max-w-3xl mx-auto space-y-4">
+                <div class="accordion-item bg-white rounded-lg shadow-sm">
+                    <button class="accordion-button flex justify-between items-center w-full p-5 text-left font-semibold">
+                        Constitución de la República del Ecuador
+                        <span class="accordion-arrow transform transition-transform">▼</span>
+                    </button>
+                    <div class="accordion-content px-5 pb-5 text-gray-600">
+                        <p>Es la norma suprema. El Artículo 78 reconoce explícitamente el derecho de las víctimas a una reparación integral. Este artículo es la piedra angular que obliga a todas las funciones del Estado a proteger, respetar y garantizar este derecho fundamental.</p>
+                    </div>
+                </div>
+                 <div class="accordion-item bg-white rounded-lg shadow-sm">
+                    <button class="accordion-button flex justify-between items-center w-full p-5 text-left font-semibold">
+                        Código Orgánico Integral Penal (COIP)
+                        <span class="accordion-arrow transform transition-transform">▼</span>
+                    </button>
+                    <div class="accordion-content px-5 pb-5 text-gray-600">
+                        <p>Establece la reparación integral como parte de la sentencia en los procesos penales. El Artículo 77 detalla las formas de reparación y obliga a los jueces a ordenarlas, asegurando que la justicia no solo se enfoque en el castigo al infractor, sino también en la restauración de la víctima.</p>
+                    </div>
+                </div>
+                <div class="accordion-item bg-white rounded-lg shadow-sm">
+                    <button class="accordion-button flex justify-between items-center w-full p-5 text-left font-semibold">
+                        Leyes Específicas
+                        <span class="accordion-arrow transform transition-transform">▼</span>
+                    </button>
+                    <div class="accordion-content px-5 pb-5 text-gray-600">
+                        <p>Existen leyes especializadas como la Ley para Prevenir y Erradicar la Violencia contra las Mujeres, que adaptan los mecanismos de reparación a contextos específicos, y la Ley de Reparación de Víctimas de Graves Violaciones de DDHH, enfocada en casos históricos o de gran complejidad. Estas normas garantizan un enfoque más preciso y adecuado a cada tipo de victimización.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section 5: Resources -->
+        <section id="recursos" class="py-16 md:py-24 bg-gray-800 text-white rounded-lg scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold">Explora y Aprende Más</h2>
+                <p class="max-w-2xl mx-auto text-lg text-gray-300 mt-4">La información es poder. Si deseas profundizar en el tema, te recomendamos visitar los sitios oficiales de las instituciones que trabajan por los derechos de las víctimas en Ecuador.</p>
+            </div>
+            <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                <a href="https://www.dpe.gob.ec/" target="_blank" rel="noopener noreferrer" class="bg-gray-700 p-6 rounded-lg hover:bg-blue-500 transition-colors">
+                    <h3 class="text-xl font-bold">Defensoría del Pueblo</h3>
+                    <p class="text-gray-300 mt-2">Institución nacional de derechos humanos encargada de su promoción y protección.</p>
+                </a>
+                 <a href="https://www.fiscalia.gob.ec/" target="_blank" rel="noopener noreferrer" class="bg-gray-700 p-6 rounded-lg hover:bg-blue-500 transition-colors">
+                    <h3 class="text-xl font-bold">Fiscalía General del Estado</h3>
+                    <p class="text-gray-300 mt-2">Dirige la investigación preprocesal y procesal penal y acusa a los presuntos infractores.</p>
+                </a>
+            </div>
+        </section>
+
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12">
+        <div class="container mx-auto px-6 py-4 text-center text-gray-500">
+            <p>&copy; 2025 UNEMI Posgrados - Escuela de Derecho. Un recurso para la comunidad.</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Mobile Menu
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+
+    // Navigation scroll spy
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('.nav-link');
+    window.onscroll = () => {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (pageYOffset >= sectionTop - 80) {
+                current = section.getAttribute('id');
+            }
+        });
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href').substring(1) === current) {
+                link.classList.add('active');
+            }
+        });
+    };
+
+    // Accordion
+    const accordionButtons = document.querySelectorAll('.accordion-button');
+    accordionButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const content = button.nextElementSibling;
+            button.classList.toggle('open');
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        });
+    });
+
+    // Tabs & Chart
+    const tabs = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+    let reparacionChart;
+
+    const chartData = {
+        labels: ['Restitución', 'Indemnización', 'Rehabilitación', 'Satisfacción', 'Garantías de No Repetición'],
+        datasets: [{
+            label: 'Dimensiones de la Reparación',
+            data: [20, 20, 20, 20, 20],
+            backgroundColor: [
+                '#60A5FA', // blue-400
+                '#3B82F6', // blue-500
+                '#2563EB', // blue-600
+                '#1D4ED8', // blue-700
+                '#1E3A8A'  // blue-800
+            ],
+            hoverOffset: 4,
+            borderColor: '#F9FAFB',
+            borderWidth: 2,
+        }]
+    };
+
+    const activateTab = (tabNumber) => {
+        tabs.forEach(tab => {
+            tab.classList.remove('active');
+            if (tab.dataset.tab == tabNumber) {
+                tab.classList.add('active');
+            }
+        });
+        tabContents.forEach(content => {
+            content.classList.add('hidden');
+            if (content.id == `tab-${tabNumber}`) {
+                content.classList.remove('hidden');
+            }
+        });
+    };
+    
+    const chartContext = document.getElementById('reparacionChart').getContext('2d');
+    reparacionChart = new Chart(chartContext, {
+        type: 'doughnut',
+        data: chartData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '50%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                           size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label;
+                        }
+                    }
+                }
+            },
+            onClick: (event, elements) => {
+                if (elements.length > 0) {
+                    const clickedIndex = elements[0].index;
+                    activateTab(clickedIndex + 1);
+                }
+            }
+        }
+    });
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            activateTab(tab.dataset.tab);
+        });
+    });
+
+});
+</script>
+
+</body>
+</html>
